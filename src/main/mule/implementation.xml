@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:sdc="http://www.mulesoft.org/schema/mule/sdc" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sdc http://www.mulesoft.org/schema/mule/sdc/current/mule-sdc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+	<sub-flow name="insert-bulk-operation" doc:id="bfff675b-cd2b-488e-886b-2cd7e1ddbbc8" >
+		<ee:transform doc:name="inputPayload" doc:id="495fd11e-190f-4ea4-9dc9-eacf62a0fa43">
+			<ee:message>
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv header=true, separator=",", escape="\"", quoteValues=true
+---
+payload ]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "correlationId" : vars.inputPayload.correlationId,
+    "businessProcessName": app.name,
+    "flowName": flow.name,
+    "source": p('source.name'),
+    "target": p('target.name'),
+    "httpMethod": vars.inputPayload.httpMethod,
+    "message": "Request sent to salesforce data cloud for bulk insert operation for object " ++ attributes.maskedRequestPath ++ " in store " ++ vars.storefront,
+    "businessObject": []
+
+}]]></ee:set-variable>
+				<ee:set-variable variableName="objectName" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.maskedRequestPath replace  "/" with ""]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="FR: mile-log:request-sent" doc:id="62201102-1534-483c-8a16-22f8f2e552eb" name="mile-log:request-sent"/>
+		<flow-ref doc:name="abort-open-jobs" doc:id="649fc2be-11c1-4cec-8d21-ac319e2b774a" name="abort-open-jobs" target="openJobResponse"/>
+		<try doc:name="Try" doc:id="8e753404-34a4-408d-aee5-b097aca9561e" >
+			<until-successful maxRetries="5" doc:name="Until Successful" doc:id="c1bb0362-c651-4190-996f-59d41e37ded9" millisBetweenRetries="10000">
+			<sdc:create-bulk-job operationUriParam="upsert" doc:name="Bulk - Create Job" doc:id="6f426e4d-7fa6-4f17-a64c-4a18fce87637" config-ref="Salesforce_CDP_Sdc_config" sourceNameUriParam="#[if(vars.storefront == &quot;opill&quot;) p('salesforceServer.opillsourceAPI') else if(vars.storefront == &quot;goodstart&quot;)p('salesforceServer.goodstartsourceAPI') else null]" objectNameUriParam="#[vars.objectName]" streamingType="ALWAYS" target="bulkCreateJobRes" />
+		</until-successful>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="877ebae5-df62-4c5b-ad40-0603453d4f9f" >
+					<ee:transform doc:name="Transform Message" doc:id="fe753e26-34df-42c4-a774-c397d5fc639f" >
+						<ee:message >
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="queryParams" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	limit: 100,
+	states: "InProgress,Open"
+}]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+					<flow-ref doc:name="get-all-sf-jobs" doc:id="f5a671ac-19d4-4df8-b1a3-0c9279889665" name="get-all-sf-jobs" target="allSfJobs"/>
+					<logger level="ERROR" doc:name="Logger" doc:id="b515c83a-0df0-46a7-b26e-6b73c3a16b0f" message='Bulk Create Job failed for object :: #[vars.objectName] in store :: #[vars.storefront], Open Or InProgress jobs :: #[vars.allSfJobs.data filter ($.state == "InProgress")]'/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<sdc:upload-data-bulk-job doc:name="Bulk - Upload Job Data" doc:id="bbf22375-4616-4b18-9b5d-d0adc2d4e80f" config-ref="Salesforce_CDP_Sdc_config" idUriParam="#[vars.bulkCreateJobRes.id]" />
+		<sdc:update-bulk-operation-job state="UploadComplete" doc:name="Bulk - Close / Abort Job" doc:id="16fd7a71-e4ba-4dae-b89b-50d57a0fb57a" config-ref="Salesforce_CDP_Sdc_config" idUriParam="#[vars.bulkCreateJobRes.id]" />
+		<ee:transform doc:name="inputPayload" doc:id="3239ecaa-9e3d-49c2-be17-7566f2fa9dce" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+   "correlationId" : vars.inputPayload.correlationId,
+    "businessProcessName": vars.inputPayload.businessProcessName,
+	"flowName": vars.inputPayload.flowName,
+    "source": p('target.name'),
+    "target": p('source.name'),  
+    "httpMethod": vars.inputPayload.httpMethod,
+    "message": "Bulk Upsert operation completed for " ++ vars.objectName ++ " in store " ++ vars.storefront ++ " with job id " ++ vars.bulkCreateJobRes.id,
+    "businessObject": []
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="FR: mile-log:success-response-received" doc:id="4cf302be-7987-4c1b-942b-c57357d24347" name="mile-log:success-response-received"/>
+	
+</sub-flow>
+	<sub-flow name="get-bulk-operation-status" doc:id="81a1d795-00ba-4adb-a6e2-79eb2af4a303" >
+		<ee:transform doc:name="inputPayload" doc:id="f039bf1f-9e8c-411c-a822-850c6342d7cc">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="inputPayload"><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "correlationId" : vars.inputPayload.correlationId,
+    "businessProcessName": app.name,
+    "flowName": flow.name,
+    "source": p('source.name'),
+    "target": p('target.name'),
+    "httpMethod":vars.inputPayload.httpMethod,
+    "message": "Request sent to salesforce data cloud for getting the job id's",
+    "businessObject": []
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="FR: mile-log:request-sent" doc:id="9cec0e3a-173f-42c8-b5f5-372cca536cce" name="mile-log:request-sent" />
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="c290d823-976a-4a0f-b7e6-d64f49374633" millisBetweenRetries="10000">
+			<sdc:get-bulk-job doc:name="Bulk - Get Job" doc:id="5cf08cc8-26ea-4c26-af68-27c764a6938e" config-ref="Salesforce_CDP_Sdc_config" idUriParam="#[attributes.uriParams.id]" />
+		</until-successful>
+		<ee:transform doc:name="inputPayload" doc:id="ace525e1-8fc0-4e5a-9461-a0773f8557a8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+   "correlationId" : vars.inputPayload.correlationId,
+    "businessProcessName": app.name,
+	"flowName": vars.inputPayload.flowName,
+    "source": p('target.name'),
+    "target": p('source.name'),  
+    "httpMethod":vars.inputPayload.httpMethod,
+    "message": "Success response sent to consumer-data-papi",
+    "businessObject": []
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="FR: mile-log:success-response-received" doc:id="e933083a-ef11-49d8-91a8-a70bac3d0a3b" name="mile-log:success-response-received" />
+	
+</sub-flow>
+	<flow name="get-query-implFlow" doc:id="8db27249-4c28-4bca-b9ec-bb0ccafb50ae" >
+		<ee:transform doc:name="Transform Message" doc:id="e810b264-b6a6-4b6e-bc6c-5836560c6912" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload[0]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<sdc:query doc:name="Query" doc:id="3fa9b58f-965c-49d9-8d1d-3f4f6dcaa3fa" config-ref="Salesforce_CDP_Sdc_config" />
+		<ee:transform doc:name="Transform Message" doc:id="6d419bc4-ddda-4e8d-8bb1-de0ef7c97765" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	
+</flow>
+	<sub-flow name="abort-open-jobs" doc:id="62bc9604-3abf-4e26-b3c5-ff10dbe906b7" >
+		<ee:transform doc:name="Transform Message" doc:id="2a56b35e-79a6-43f1-ad1b-b6d5d63f1f2b" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="queryParams" ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	limit: 100,
+	states: "Open"
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="get-all-sf-jobs" doc:id="98b17854-af78-4bb6-b91a-05993dca0d65" name="get-all-sf-jobs" target="openJobs"/>
+		<ee:transform doc:name="sfSourceName" doc:id="53c6032c-d1a7-4106-9454-99ca4379941a" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="sfSourceName" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.storefront == "opill") p('salesforceServer.opillsourceAPI') else if(vars.storefront == "goodstart")p('salesforceServer.goodstartsourceAPI') else null]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="effdfc6b-5dad-491d-b147-1ba671ecd5c6" collection="#[vars.openJobs.data filter ($.object == vars.objectName and $.sourceName == vars.sfSourceName)]">
+			<set-variable value="#[payload.id]" doc:name="id" doc:id="2599be66-fa0d-4782-a935-25c7b5190e4b" variableName="id" />
+			<flow-ref doc:name="abort-sf-job" doc:id="aa306c9e-3a7b-4f79-ba3e-3cf7ef8cda75" name="abort-sf-job"/>
+		</foreach>
+	</sub-flow>
+	<flow name="get-all-sf-jobs" doc:id="fabb5e7a-85cb-49ec-a942-531c9490931d" >
+		<java:invoke-static method="getToken(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)" doc:name="generate-signed-jwt-token" doc:id="13120c1e-7492-46fd-a45f-d98be23c085d" class="com.mulesoft.jwt.token.JWTProvider" target="access_token" >
+			<java:args ><![CDATA[#[%dw 2.0 
+---
+{
+  arg0: p('salesforceServer.keyStore'),
+  arg1: p('secure::salesforceServer.keyStorePassword'),
+  arg2: p('secure::salesforceServer.consumerKey'),
+  arg3: p('secure::salesforceServer.userName'),
+  arg4: p('salesforceServer.audienceUrl')
+}]]]></java:args>
+		</java:invoke-static>
+		<logger level="DEBUG" doc:name="log-jwt" doc:id="8bc37efa-bf68-411b-898b-fa87a2cbf435" message='#[output application/json --- {&#10;	"JWS" : vars.access_token&#10;}]' />
+		<ee:transform doc:name="access-token-request" doc:id="ba8c7835-7590-474e-b304-839032d6f14d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+	"grant_type": " urn:ietf:params:oauth:grant-type:jwt-bearer",
+	"assertion" : vars.access_token
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="SF Token" doc:id="8e9d58f3-57c9-47f6-90a8-ed5679e907b5" config-ref="HTTP_Request_configuration_SF_Token_URL" path="${salesforceServer.token.path}" />
+		<ee:transform doc:name="Transform Message" doc:id="b0d247e3-20d1-4915-90bc-b18394a12079" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/x-www-form-urlencoded
+---
+{
+	"grant_type": "urn:salesforce:grant-type:external:cdp",
+	"subject_token_type": "urn:ietf:params:oauth:token-type:access_token",
+	"subject_token" : payload.access_token
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Opill Token" doc:id="8ac450ab-326f-4338-aef2-9eef4a26dbb6" config-ref="HTTP_Request_configuration_SF_Opill" path="${salesforceServer.opill.tokenPath}" />
+		<http:request method="GET" doc:name="Get All jobs" doc:id="ae2be717-9cec-4dce-b008-4a8fbfaa7455" config-ref="HTTP_Request_configuration_CDP" path="${salesforceServer.DC.jobPath}" >
+			<http:body ><![CDATA[#[null]]]></http:body>
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer " ++ payload."access_token"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+vars.queryParams]]]></http:query-params>
+		</http:request>
+	</flow>
+	<sub-flow name="abort-sf-job" doc:id="8f8e1b75-9b2b-49dc-bf03-131eb3ae3ee6" >
+		<ee:transform doc:name="inputPayload" doc:id="7abf6a0a-ac32-4f8f-8ee3-3c6b6b627e92" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "correlationId" : correlationId,
+    "businessProcessName": app.name,
+    "flowName": flow.name,
+    "source": p('source.name'),
+    "target": p('target.name'),
+    "httpMethod":vars.inputPayload.httpMethod,
+    "message": "Delete Salesforce job with id :: " ++ vars.id,
+    "businessObject": []
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="FR: mile-log:request-sent" doc:id="37cb95bd-d1c6-4d6a-ad86-1b7100ffbaef" name="mile-log:request-sent" />
+		<until-successful maxRetries="5" doc:name="Until Successful" doc:id="b434eb2b-6385-4e4c-adca-4820bfeee2fe" millisBetweenRetries="10000" >
+			<sdc:update-bulk-operation-job doc:name="Bulk - Close / Abort Job" doc:id="2f3ef6dc-0a7d-4965-a601-20e91522219b" config-ref="Salesforce_CDP_Sdc_config" idUriParam="#[vars.id]" state="Aborted"/>
+		</until-successful>
+		<ee:transform doc:name="inputPayload" doc:id="c1a02645-cc27-48e8-9701-cd2210bbe0d6" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+   "correlationId" : vars.inputPayload.correlationId,
+    "businessProcessName": app.name,
+	"flowName": vars.inputPayload.flowName,
+    "source": p('target.name'),
+    "target": p('source.name'),  
+    "httpMethod":vars.inputPayload.httpMethod,
+    "message": "Successfully deleted Salesforce job with id :: " ++ vars.id,
+    "businessObject": []
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="FR: mile-log:success-response-received" doc:id="a0fc1b8b-0127-400b-bbaf-2f60236f03c8" name="mile-log:success-response-received" />
+	</sub-flow>
+
+</mule>

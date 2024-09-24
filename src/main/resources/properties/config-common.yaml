@@ -1,0 +1,11 @@
+#flow Name
+
+api:
+  name: "${project.name}"
+#API Name
+
+app:
+  name: "${project.artifactId}"
+  
+pattern:
+  bulk: "yes"        

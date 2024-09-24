@@ -1,0 +1,35 @@
+#app name
+application:
+  name: "salesforce-sapi-api"
+  
+#api Id
+api:
+  id: "19363956"  
+
+#Logger category
+milestone:
+  category: "LOG"
+logger:
+  category: "LOG"
+
+#http listener config
+http: 
+    host: "0.0.0.0"
+    port: "8081"
+    path: "/api/*"
+    
+#Salesforce Config Details
+salesforceServer:
+  token:
+    host: "login.salesforce.com"
+    path: "/services/oauth2/token"
+  opill:
+    host: "opill.my.salesforce.com"
+    tokenPath: "/services/a360/token"
+  DC:
+    host: "mmzgmzrxg5sgmzdbmq4d9ytdmm.c360a.salesforce.com"
+    jobPath: "/api/v1/ingest/jobs"
+  keyStore: "certs/sfCert.jks"
+  audienceUrl: "https://login.salesforce.com"
+  opillsourceAPI: "Shopify_Opill_TEST"
+  goodstartsourceAPI: "Shopify_GoodStart_TEST"

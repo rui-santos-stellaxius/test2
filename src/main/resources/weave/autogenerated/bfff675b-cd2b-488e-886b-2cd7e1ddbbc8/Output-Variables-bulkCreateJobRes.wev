@@ -1,0 +1,19 @@
+%dw 2.0
+
+type auto_bfff675b_cd2b_488e_886b_2cd7e1ddbbc8_Output_Variables_bulkCreateJobRes = {-
+  systemModstamp?: String, 
+  retries?: Number, 
+  contentUrl?: String, 
+  createdDate?: String, 
+  apiVersion?: String, 
+  id?: String, 
+  sourceName?: String, 
+  state?: String, 
+  totalProcessingTime?: Number, 
+  operation?: String, 
+  contentType?: String, 
+  createdById?: String, 
+  object?: String, 
+  _?: Any
+-}
+

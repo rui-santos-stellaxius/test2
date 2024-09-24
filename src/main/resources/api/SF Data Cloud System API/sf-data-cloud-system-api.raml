@@ -1,0 +1,681 @@
+#%RAML 1.0
+title: Salesforce Data Cloud System API
+description: >-
+ The salesforce System API lets you build apps and integrations that extend and enhance the salesforce CDP resources.
+protocols:
+  - HTTPS
+version: v1
+
+/abandoned_checkout:
+  post:
+    description: Upsert abandoned_checkout records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/abandonedCheckoutType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/abandonedCheckoutType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete abandoned_checkout records
+    queryParameters:
+      ids:
+        description: Id of abandoned_checkout
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/abandoned_checkout_line_item:
+  post:
+    description: Upsert abandoned_checkout_line_item records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/abandonedCheckoutLineItemType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/abandonedCheckoutLineItemType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete abandoned_checkout_line_item records
+    queryParameters:
+      ids:
+        description: Id of abandoned_checkout_line_item
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/customer:
+  post:
+    description: Upsert customer records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/customerType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/customerType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete customer records
+    queryParameters:
+      ids:
+        description: Id of customer
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/customer_address:
+  post:
+    description: Upsert customer_address records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/customerAddressType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/customerAddressType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete customer_address records
+    queryParameters:
+      ids:
+        description: Id of customer_address
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/customer_family:
+  post:
+    description: Upsert customer_family records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/customerFamilyType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/customerFamilyType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete customer_family records
+    queryParameters:
+      ids:
+        description: Id of customer_family
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/order:
+  post:
+    description: Upsert order records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/orderType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/orderType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete order records
+    queryParameters:
+      ids:
+        description: Id of order
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/order_line_item:
+  post:
+    description: Upsert order_line_item records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/orderLineItemType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/orderLineItemType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete order_line_item records
+    queryParameters:
+      ids:
+        description: Id of order_line_item
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/product:
+  post:
+    description: Upsert product records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/productType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/productType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete product records
+    queryParameters:
+      ids:
+        description: Id of product
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/product_subscription:
+  post:
+    description: Upsert product_subscription records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/productSubscriptionType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/productSubscriptionType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete product_subscription records
+    queryParameters:
+      ids:
+        description: Id of product_subscription
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+/product_variant:
+  post:
+    description: Upsert product_variant records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/productVariantType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/productVariantType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete product_variant records
+    queryParameters:
+      ids:
+        description: Id of product_variant
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+
+/contact_point_phone:
+  post:
+    description: Upsert contact_point_phone records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/contactPointPhoneType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/contactPointPhoneType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete contact_point_phone records
+    queryParameters:
+      ids:
+        description: Id of contact_point_phone
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+
+/contact_point_email:
+  post:
+    description: Upsert contact_point_email records
+    body:
+      application/json:
+        type: array
+        items: !include dataTypes/contactPointEmailType.raml
+      application/csv:
+        type: array
+        items: !include dataTypes/contactPointEmailType.raml
+    responses:
+      "202":
+        description: Accepted
+      "204":
+        description: No Content
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+  delete:
+    description: Delete contact_point_email records
+    queryParameters:
+      ids:
+        description: Id of contact_point_email
+        required: true
+        type: array
+        examples:
+          integerIds:
+            strict: false
+            value:
+              - 1
+              - 2
+              - 3
+        items:
+          type: integer
+        maxItems: 200
+        minItems: 1
+    responses:
+      "202":
+        description: Accepted
+      "400":
+        description: Bad Request
+      "401":
+        description: Unauthorized
+      "404":
+        description: Not Found
+      "500":
+        description: Internal Server Error
+
+/job:
+  /{id}:
+    delete:
+      description: Deletes Salesforce Bulk job
+      responses:
+        204:
+  /status:
+    get:
+      queryParameters:
+        limit:
+          description: The number of records to return. Defaults to 20. Maximum up to 100 records per request.
+          required: false
+          type: integer
+          example: 100
+        offset:
+          description: Number of rows to skip before returning.
+          required: false
+          type: integer
+          example: 10
+        orderBy:
+          description: The field used to order job definition results. The default order is by systemModstamp.
+          required: false
+          type: string
+          example: "systemModstamp"
+        states:
+          description: Get jobs in specific states. Valid states are Open, UploadComplete, Failed, Aborted, and JobComplete. The parameter’s value can be a comma-delimited list.
+          required: false
+          type: string
+          example: "Open"
+      description: Retrieves All Salesforce Bulk job details
+      responses:
+        200:
+          body:
+            application/json:
+    /{id}:
+      uriParameters: 
+        id:
+          description: Salesforce Bulk job id
+          type: string
+          example: 'f00692cd-22ba-447f-bdfb-7f701ad78336'
+      get:
+        description: Retrieves Salesforce Bulk job details
+        responses:
+          200:
+            body:
+              application/json:

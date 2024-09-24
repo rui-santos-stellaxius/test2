@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:sdc="http://www.mulesoft.org/schema/mule/sdc"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sdc http://www.mulesoft.org/schema/mule/sdc/current/mule-sdc.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6980fef9-83a3-4da1-aacd-a70f8dd0671c" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<apikit:config name="sf-data-cloud-system-api-config" api="SF Data Cloud System API/sf-data-cloud-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<sdc:sdc-config name="Salesforce_CDP_Sdc_config" doc:name="Salesforce CDP Sdc config" doc:id="4fb6d0b7-1af7-46a9-9548-dfdf9bb02da5" >
+		<sdc:oauth-jwt-connection keyStorePath="${salesforceServer.keyStore}" consumerKey="${secure::salesforceServer.consumerKey}" audienceUrl="${salesforceServer.audienceUrl}" storePassword="${secure::salesforceServer.keyStorePassword}" keyAlias="${secure::salesforceServer.certificateAlias}" subject="${secure::salesforceServer.userName}">
+			<reconnection >
+				<reconnect />
+			</reconnection>
+		</sdc:oauth-jwt-connection>
+	</sdc:sdc-config>
+	<import doc:name="Import" doc:id="04a9c517-a6d6-4761-b525-a607631c6c35" doc:description="common-global" file="common-global.xml" />
+	<import doc:name="Import" doc:id="8d009852-73d5-4757-a541-77fdafcf4b25" doc:description="error-handler" file="error-handler.xml" />
+	<import doc:name="Import" doc:id="9f206a01-1312-4434-bdf3-8baa08e735db" doc:description="health-check" file="health-check.xml" />
+	<import doc:name="Import" doc:id="94260c1c-ac4c-4eab-a805-390916afd5cd" doc:description="mule-common-logging" file="mule-common-logging.xml" />
+	<configuration-properties doc:name="Configuration properties" doc:id="1fadf2a4-9802-4e2b-9264-ff280eb5e7a5" file="properties\config-${mule.env}.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="6ff7202c-5dc9-444c-9322-de2b8dfd3856" file="properties/config-secure-${mule.env}.yaml" key="${mule.key}">
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<os:object-store name="bulkJob_Object_store" doc:name="Object store" doc:id="a5160225-3e1c-4c9c-8663-a029e3ff1886" />
+	<api-gateway:autodiscovery apiId="${api.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="a3fff411-88a1-4e08-915f-7bc2f6eda757" flowRef="sf-data-cloud-system-api-main" />
+ 	<configuration-properties doc:name="Configuration properties" doc:id="87487485-33ef-4432-979d-f1818a67c358" file="properties\config-common.yaml" />
+		<http:request-config name="HTTP_Request_configuration_SF_Token_URL" doc:name="HTTP Request configuration" doc:id="32b52e0b-0f5c-48a2-a762-9a38039ca979" >
+		<http:request-connection protocol="HTTPS" host="${salesforceServer.token.host}" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration_SF_Opill" doc:name="HTTP Request configuration" doc:id="e0f4409d-88ab-4ccb-bbe1-f74f925b887b" >
+		<http:request-connection protocol="HTTPS" host="${salesforceServer.opill.host}" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration_CDP" doc:name="HTTP Request configuration" doc:id="9974a2e6-de59-41f4-b3a7-336393e80996" >
+		<http:request-connection protocol="HTTPS" host="${salesforceServer.DC.host}" />
+	</http:request-config>
+</mule>

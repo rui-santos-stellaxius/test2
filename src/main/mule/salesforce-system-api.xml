@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+	<flow name="sf-data-cloud-system-api-main">
+        <http:listener config-ref="HTTP_Listener_config" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+		<ee:transform doc:name="common-log-inputPayload-storefront" doc:id="0959f75f-e4e7-4b98-8c7f-9693f934e565" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "correlationId" : attributes.headers.correlationId default correlationId,
+    "businessProcessName": app.name,
+    "flowName": flow.name,
+    "source": p('source.name'),
+    "target": p('target.name'),
+    "httpMethod": attributes.method,
+    "message": "Request received for " ++ attributes.requestPath,
+    "businessObject": [{
+    	storefront: attributes.headers.storefront
+    }]
+}]]></ee:set-variable>
+				<ee:set-variable variableName="storefront" ><![CDATA[attributes.headers.storefront default ""]]></ee:set-variable>
+				<ee:set-variable variableName="requestAttributes" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes]]></ee:set-variable>
+				<ee:set-variable variableName="correlationId" ><![CDATA[%dw 2.0
+output application/json
+---
+attributes.headers.correlationId default correlationId]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="FR: mile-log:request-received" doc:id="da58de4f-5473-44f1-98eb-b4ec3c6aa14c" name="mile-log:request-received"/>
+		<apikit:router config-ref="sf-data-cloud-system-api-config" />
+        <ee:transform doc:name="common-log-inputPayload" doc:id="1d522cb7-7539-4d7f-8df7-c0b159a9e0bc" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "correlationId" : vars.inputPayload.correlationId,
+    "businessProcessName": vars.inputPayload.businessProcessName,
+	"flowName": vars.inputPayload.flowName,
+    "source": p('target.name'),
+    "target": p('source.name'),  
+    "httpMethod":vars.inputPayload.httpMethod,
+    "message": "Success response sent for " ++ vars.requestAttributes.requestPath,
+    "businessObject": []
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="FR: mile-log:success-response-sent" doc:id="6cf64a84-1e1f-4937-be6b-a3db223c6da2" name="mile-log:success-response-sent"/>
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"delete:\abandoned_checkout:sf-data-cloud-system-api-config"]<flow name="delete:\abandoned_checkout:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\abandoned_checkout:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\abandoned_checkout_line_item:sf-data-cloud-system-api-config"]<flow name="delete:\abandoned_checkout_line_item:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\abandoned_checkout_line_item:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\customer:sf-data-cloud-system-api-config"]<flow name="delete:\customer:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\customer:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\customer_address:sf-data-cloud-system-api-config"]<flow name="delete:\customer_address:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\customer_address:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\customer_family:sf-data-cloud-system-api-config"]<flow name="delete:\customer_family:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\customer_family:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\order:sf-data-cloud-system-api-config"]<flow name="delete:\order:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\order:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\order_line_item:sf-data-cloud-system-api-config"]<flow name="delete:\order_line_item:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\order_line_item:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\product:sf-data-cloud-system-api-config"]<flow name="delete:\product:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\product:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\product_subscription:sf-data-cloud-system-api-config"]<flow name="delete:\product_subscription:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\product_subscription:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <!-- [STUDIO:"delete:\product_variant:sf-data-cloud-system-api-config"]<flow name="delete:\product_variant:sf-data-cloud-system-api-config">
+        <logger level="INFO" message="delete:\product_variant:sf-data-cloud-system-api-config" />
+    </flow> [STUDIO] -->
+    <flow name="post:\abandoned_checkout:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="662ce193-c8eb-4267-9e45-d6fb60236bc8" name="insert-bulk-operation"/>
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\abandoned_checkout:application\json:sf-data-cloud-system-api-config"]<flow name="post:\abandoned_checkout:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="c7f0459e-23a9-41a8-a0b8-0865fddebbf9" message="post:\abandoned_checkout:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\abandoned_checkout_line_item:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="a9b93084-a657-4671-a74f-4eb2ec754489" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\abandoned_checkout_line_item:application\json:sf-data-cloud-system-api-config"]<flow name="post:\abandoned_checkout_line_item:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="ab74dd5c-c7ff-43d2-896c-91b6d4dc0c2b" message="post:\abandoned_checkout_line_item:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\customer:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="ff59fd04-8ef7-4aa9-8294-2c97af6fa016" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\customer:application\json:sf-data-cloud-system-api-config"]<flow name="post:\customer:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="4c7d9fa8-35cb-4360-b945-da436b5e3839" message="post:\customer:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\customer_address:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="ec2b533b-4745-4bdb-b0be-0e69686a94f9" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\customer_address:application\json:sf-data-cloud-system-api-config"]<flow name="post:\customer_address:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="a01ae4aa-afbc-4ce9-913b-a5d92840cc90" message="post:\customer_address:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\customer_family:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="281b222f-b646-4897-a54b-0ea3564d32e9" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\customer_family:application\json:sf-data-cloud-system-api-config"]<flow name="post:\customer_family:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="c4984d7f-f9a3-4681-857f-bf8306dd569b" message="post:\customer_family:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\order:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="2d6255dc-ff9d-4a69-aabc-4af48b68971f" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\order:application\json:sf-data-cloud-system-api-config"]<flow name="post:\order:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="bde173fa-f1cb-434f-80e2-157b9704d06f" message="post:\order:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\order_line_item:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="0b9d5d65-bf82-4442-b349-d4e6a2c0be9e" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\order_line_item:application\json:sf-data-cloud-system-api-config"]<flow name="post:\order_line_item:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="7992020b-8334-44fa-86bc-a14f4db6f847" message="post:\order_line_item:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\product:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="86a5be4d-9aef-45be-89ef-d43bb3d9b295" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\product:application\json:sf-data-cloud-system-api-config"]<flow name="post:\product:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="eeddf205-8628-46a3-9626-b8d90f223477" message="post:\product:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\product_subscription:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="a1e07772-f9ec-48f1-9ae1-c43c0e9a5f03" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\product_subscription:application\json:sf-data-cloud-system-api-config"]<flow name="post:\product_subscription:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="393cdb03-3338-43e6-950a-e7d1f019a3ff" message="post:\product_subscription:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\product_variant:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="82af5acf-7a28-4fc1-b523-61dca4f1775e" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\product_variant:application\json:sf-data-cloud-system-api-config"]<flow name="post:\product_variant:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="a74ef9fd-5de1-49b1-8c77-b8f182110914" message="post:\product_variant:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\contact_point_phone:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="addec898-6414-498a-907e-20dd74b60aa4" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\contact_point_phone:application\json:sf-data-cloud-system-api-config"]<flow name="post:\contact_point_phone:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="3712dd1c-f9b9-4bc2-8c6d-ac50977d5eb1" message="post:\contact_point_phone:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+    <flow name="post:\contact_point_email:application\csv:sf-data-cloud-system-api-config">
+		<flow-ref doc:name="insert-bulk-operation" doc:id="033592af-ed31-43e3-86ba-edc58d3f0afa" name="insert-bulk-operation" />
+		<error-handler ref="error-handler" />
+    </flow>
+    <!-- [STUDIO:"post:\contact_point_email:application\json:sf-data-cloud-system-api-config"]<flow name="post:\contact_point_email:application\json:sf-data-cloud-system-api-config">
+		<logger level="INFO" doc:name="Logger" doc:id="52a1142c-59a4-4580-9459-cd8e71c91396" message="post:\contact_point_email:application\json:sf-data-cloud-system-api-config"/>
+		<error-handler ref="error-handler" />
+    </flow> [STUDIO] -->
+<!-- [STUDIO:"bulk-operation-status"]	<flow name="bulk-operation-status" doc:id="8c9a8bcf-da83-47dd-bdcf-a2f414cb5d29" >
+		<http:listener doc:name="Listener" doc:id="b13761f9-8924-4f7a-af21-4d0d9347d293" config-ref="HTTP_Listener_config" path="/api/job/status/{id}"/>
+		<flow-ref doc:name="Flow Reference" doc:id="4f5f3fb5-7a2f-45f7-ab83-fc843a1c0e5c" name="get-bulk-operation-status"/>
+	</flow> [STUDIO] -->
+	<flow name="get:\job\status\(id):sf-data-cloud-system-api-config">
+        <flow-ref doc:name="get-bulk-operation-status" doc:id="6485c612-5106-4630-b5e3-86f469e23e4c" name="get-bulk-operation-status"/>
+		<error-handler ref="error-handler" />
+    </flow>
+    <flow name="delete:\job\(id):sf-data-cloud-system-api-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<flow-ref doc:name="abort-sf-job" doc:id="34ca8373-8808-4086-a1a8-4dd0f8c72b6e" name="abort-sf-job"/>
+		<error-handler ref="error-handler" />
+    </flow>
+    <flow name="get:\job\status:sf-data-cloud-system-api-config">
+		<ee:transform doc:name="Transform Message" doc:id="0c64dc82-507b-4fe1-b937-568c447dece6" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="queryParams" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.queryParams]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="get-all-sf-jobs" doc:id="594f353e-e8d3-4f86-bb86-a1237ebac7b8" name="get-all-sf-jobs"/>
+		<error-handler ref="error-handler" />
+    </flow>
+</mule>

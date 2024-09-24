@@ -1,0 +1,9 @@
+%dw 2.0
+
+type auto_bfff675b_cd2b_488e_886b_2cd7e1ddbbc8_Output_Attributes = {|
+  statusCode: Number, 
+  headers: { _?: String }, 
+  reasonPhrase: String
+|} {"typeAlias": "HttpResponseAttributes",
+"typeId": "com.mulesoft.connectivity.salesforcecdpconnector.rest.commons.api.operation.HttpResponseAttributes"}
+

@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_bfff675b_cd2b_488e_886b_2cd7e1ddbbc8_Input_Payload = Array<{  billing_address_id?: Number,   note?: String,   subtotal_price?: Number,   closed_at?: String,   total_price?: Number,   created_at?: String,   total_line_items_price?: Number,   total_tax?: Number,   landing_site?: String,   total_discounts?: Number,   updated_at?: String,   referring_site?: String,   phone?: String,   total_duties?: Number,   currency?: String,   abandoned_checkout_url?: String,   id?: Number,   customer_id?: Number,   source_name?: String,   _?: Any}>
+

@@ -1,0 +1,13 @@
+{
+  "main": "sf-data-cloud-system-api.raml",
+  "name": "Salesforce Data Cloud System API",
+  "groupId": "b51e8e93-f60a-4e5b-8544-8455141fb4d6",
+  "assetId": "sf-data-cloud-system-api",
+  "version": "1.0.0",
+  "classifier": "raml",
+  "tags": [],
+  "descriptorVersion": "1.0.0",
+  "organizationId": "b51e8e93-f60a-4e5b-8544-8455141fb4d6",
+  "apiVersion": "v1",
+  "originalFormatVersion": "1.0"
+}
