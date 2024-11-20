@@ -4,7 +4,7 @@
 
 	<groupId>b51e8e93-f60a-4e5b-8544-8455141fb4d6</groupId>
 	<artifactId>salesforce-system-api</artifactId>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<packaging>mule-application</packaging>
 
 	<name>salesforce-sapi-06-27-24-1.0.2-mule-application</name>
