@@ -4,10 +4,10 @@
 
 	<groupId>b51e8e93-f60a-4e5b-8544-8455141fb4d6</groupId>
 	<artifactId>salesforce-system-api</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.2</version>
 	<packaging>mule-application</packaging>
 
-	<name>salesforce-sapi-05-20-24-1.0.0-mule-application</name>
+	<name>salesforce-sapi-06-27-24-1.0.2-mule-application</name>
 
 	<properties>
 		<api.version>v1</api.version>
@@ -82,7 +82,7 @@
 							</services>
 						</integrations>
 					</cloudhub2Deployment>
-					<classifier>---- select project type ----</classifier>
+					<classifier>mule-application</classifier>
 				</configuration>
 			</plugin>
 			<!-- <plugin>
@@ -114,7 +114,53 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-		</plugins>
+			<plugin>
+			    <groupId>org.mule.tools.maven</groupId>
+			    <artifactId>mule-maven-plugin</artifactId>
+			    <version>${mule.maven.plugin.version}</version>
+			    <extensions>true</extensions>
+			    <configuration>
+			        <classifier>mule-application</classifier>
+			        <cloudhub2Deployment>
+			            <uri>https://anypoint.mulesoft.com</uri>
+			            <provider>MC</provider>
+			            <environment>stx-dev</environment>
+			            <target>ps-prod-us-e1</target>
+			            <server>Stellaxius</server>
+			            <applicationName>${project.artifactId}</applicationName>
+			            <releaseChannel>LTS</releaseChannel>
+			            <replicas>1</replicas>
+			            <vCores>0.1</vCores>
+			            <deploymentSettings>
+			                <generateDefaultPublicUrl>true</generateDefaultPublicUrl>
+			            </deploymentSettings>
+			        </cloudhub2Deployment>
+			    </configuration>
+			</plugin>
+			<plugin>
+			    <groupId>org.mule.tools.maven</groupId>
+			    <artifactId>mule-maven-plugin</artifactId>
+			    <version>${mule.maven.plugin.version}</version>
+			    <extensions>true</extensions>
+			    <configuration>
+			        <classifier>mule-application</classifier>
+			        <cloudhub2Deployment>
+			            <uri>https://anypoint.mulesoft.com</uri>
+			            <provider>MC</provider>
+			            <environment>dev</environment>
+			            <target>ps-non-prod-us-e1</target>
+			            <server>Stellaxius</server>
+			            <applicationName>${project.artifactId}</applicationName>
+			            <releaseChannel>LTS</releaseChannel>
+			            <replicas>1</replicas>
+			            <vCores>0.1</vCores>
+			            <deploymentSettings>
+			                <generateDefaultPublicUrl>true</generateDefaultPublicUrl>
+			            </deploymentSettings>
+			        </cloudhub2Deployment>
+			    </configuration>
+			</plugin>
+					</plugins>
 	</build>
 
 	<dependencies>
@@ -196,13 +242,20 @@
 			<version>1.9.3</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
+		<dependency>
+			<groupId>b51e8e93-f60a-4e5b-8544-8455141fb4d6</groupId>
+			<artifactId>sf-data-cloud-system-api</artifactId>
+			<version>1.0.4</version>
+			<classifier>raml</classifier>
+			<type>zip</type>
+		</dependency>
 	</dependencies>
 
 	<repositories>
 		<repository>
 			<id>anypoint-exchange-v3</id>
 			<name>Anypoint Exchange</name>
-			<url>https://maven.anypoint.mulesoft.com/api/v3/maven</url>
+			<url>https://maven.anypoint.mulesoft.com/api/v1/maven</url>
 			<layout>default</layout>
 		</repository>
 		<repository>
@@ -224,5 +277,12 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-
+	<distributionManagement>
+    <repository>
+        <id>Stellaxius</id>
+        <name>Corporate Repository</name>
+        <url>https://maven.anypoint.mulesoft.com/api/v1/organizations/${project.groupId}/maven</url>
+        <layout>default</layout>
+    </repository>
+</distributionManagement>
 </project>

@@ -14,7 +14,7 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="6980fef9-83a3-4da1-aacd-a70f8dd0671c" >
 		<http:listener-connection host="0.0.0.0" port="${http.port}" />
 	</http:listener-config>
-	<apikit:config name="sf-data-cloud-system-api-config" api="SF Data Cloud System API/sf-data-cloud-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<apikit:config name="sf-data-cloud-system-api-config" api="resource::b51e8e93-f60a-4e5b-8544-8455141fb4d6:sf-data-cloud-system-api:1.0.4:raml:zip:sf-data-cloud-system-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
 	<sdc:sdc-config name="Salesforce_CDP_Sdc_config" doc:name="Salesforce CDP Sdc config" doc:id="4fb6d0b7-1af7-46a9-9548-dfdf9bb02da5" >
 		<sdc:oauth-jwt-connection keyStorePath="${salesforceServer.keyStore}" consumerKey="${secure::salesforceServer.consumerKey}" audienceUrl="${salesforceServer.audienceUrl}" storePassword="${secure::salesforceServer.keyStorePassword}" keyAlias="${secure::salesforceServer.certificateAlias}" subject="${secure::salesforceServer.userName}">
 			<reconnection >

@@ -31,7 +31,7 @@ output application/json
 
 }]]></ee:set-variable>
 				<ee:set-variable variableName="objectName" ><![CDATA[%dw 2.0
-output application/java
+output application/json
 ---
 attributes.maskedRequestPath replace  "/" with ""]]></ee:set-variable>
 			</ee:variables>
@@ -182,7 +182,7 @@ output application/java
 			</ee:message>
 			<ee:variables >
 				<ee:set-variable variableName="sfSourceName" ><![CDATA[%dw 2.0
-output application/java
+output application/json
 ---
 if(vars.storefront == "opill") p('salesforceServer.opillsourceAPI') else if(vars.storefront == "goodstart")p('salesforceServer.goodstartsourceAPI') else null]]></ee:set-variable>
 			</ee:variables>
@@ -230,7 +230,7 @@ output application/x-www-form-urlencoded
 			</ee:message>
 		</ee:transform>
 		<http:request method="POST" doc:name="Opill Token" doc:id="8ac450ab-326f-4338-aef2-9eef4a26dbb6" config-ref="HTTP_Request_configuration_SF_Opill" path="${salesforceServer.opill.tokenPath}" />
-		<http:request method="GET" doc:name="Get All jobs" doc:id="ae2be717-9cec-4dce-b008-4a8fbfaa7455" config-ref="HTTP_Request_configuration_CDP" path="${salesforceServer.DC.jobPath}" >
+		<http:request method="GET" doc:name="Get All jobs" doc:id="ae2be717-9cec-4dce-b008-4a8fbfaa7455" config-ref="HTTP_Request_configuration_CDP" path="${salesforceServer.DC.jobPath}">
 			<http:body ><![CDATA[#[null]]]></http:body>
 			<http:headers ><![CDATA[#[output application/java
 ---
@@ -241,7 +241,8 @@ output application/x-www-form-urlencoded
 ---
 vars.queryParams]]]></http:query-params>
 		</http:request>
-	</flow>
+	
+</flow>
 	<sub-flow name="abort-sf-job" doc:id="8f8e1b75-9b2b-49dc-bf03-131eb3ae3ee6" >
 		<ee:transform doc:name="inputPayload" doc:id="7abf6a0a-ac32-4f8f-8ee3-3c6b6b627e92" >
 			<ee:message />
